@@ -341,110 +341,122 @@ export default function RhythmScreen() {
 
     return (
         <div
-            className="flex flex-col h-full bg-stone-50 overflow-hidden"
+            className="flex flex-col h-full bg-gradient-to-br from-stone-50 to-stone-100 overflow-hidden"
             onMouseDown={handleInteraction}
             onTouchStart={handleInteraction}
         >
             {/* Mobile Settings Panel - Portrait Mode Only */}
             {!isPlaying && (
-                <div className="flex-shrink-0 p-4 space-y-3 overflow-y-auto">
-                    {/* BPM */}
-                    <div className="bg-white p-3 rounded-lg shadow-sm">
-                        <label className="text-xs font-bold text-gray-500 uppercase block mb-2">{t('common.bpm')}</label>
-                        <input
-                            type="range"
-                            min="40"
-                            max="200"
-                            value={bpm}
-                            onChange={(e) => setBpm(Number(e.target.value))}
-                            className="w-full accent-amber-600"
-                        />
-                        <div className="text-center text-2xl font-bold text-amber-700 mt-1">{bpm}</div>
-                    </div>
-
-                    {/* Visual Mode */}
-                    <div className="bg-white p-3 rounded-lg shadow-sm">
-                        <label className="text-xs font-bold text-gray-500 uppercase block mb-2">Mode</label>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => setVisualMode('scrolling')}
-                                className={`flex-1 py-2 rounded-md font-bold text-sm ${visualMode === 'scrolling' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600'}`}
-                            >
-                                🌊 {t('common.scrolling')}
-                            </button>
-                            <button
-                                onClick={() => setVisualMode('static')}
-                                className={`flex-1 py-2 rounded-md font-bold text-sm ${visualMode === 'static' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600'}`}
-                            >
-                                📄 {t('common.static')}
-                            </button>
+                <div className="flex-1 overflow-y-auto px-3 py-3 pb-safe">
+                    <div className="max-w-md mx-auto space-y-2.5">
+                        {/* BPM - Compact */}
+                        <div className="bg-white/90 backdrop-blur-sm p-2.5 rounded-xl shadow-sm border border-gray-100">
+                            <div className="flex items-center justify-between mb-1.5">
+                                <label className="text-xs font-bold text-gray-600 uppercase">{t('common.bpm')}</label>
+                                <span className="text-lg font-black text-amber-600">{bpm}</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="40"
+                                max="200"
+                                value={bpm}
+                                onChange={(e) => setBpm(Number(e.target.value))}
+                                className="w-full h-1.5 accent-amber-500"
+                            />
                         </div>
-                    </div>
 
-                    {/* Duration Options */}
-                    <div className="bg-white p-3 rounded-lg shadow-sm">
-                        <label className="text-xs font-bold text-gray-500 uppercase block mb-2">{t('common.notes_label')}</label>
-                        <div className="flex flex-wrap gap-2">
-                            {[
-                                { id: 'w', label: t('figures.w') },
-                                { id: 'h', label: t('figures.h') },
-                                { id: 'q', label: t('figures.q') },
-                                { id: '8', label: t('figures.8') },
-                                { id: '16', label: t('figures.16') }
-                            ].map(opt => (
-                                <label key={opt.id} className={`flex items-center gap-1 px-3 py-1.5 rounded-full border cursor-pointer ${durationOptions[opt.id as keyof typeof durationOptions] ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-white border-gray-200 text-gray-500'}`}>
-                                    <input
-                                        type="checkbox"
-                                        checked={durationOptions[opt.id as keyof typeof durationOptions]}
-                                        onChange={(e) => setDurationOptions(prev => ({ ...prev, [opt.id]: e.target.checked }))}
-                                        className="w-4 h-4 accent-amber-600"
-                                    />
-                                    <span className="text-xs font-medium">{opt.label}</span>
+                        {/* Visual Mode + Time Signature - Single Row */}
+                        <div className="bg-white/90 backdrop-blur-sm p-2.5 rounded-xl shadow-sm border border-gray-100">
+                            <div className="flex gap-2">
+                                {/* Visual Mode */}
+                                <div className="flex-1">
+                                    <label className="text-xs font-bold text-gray-600 uppercase block mb-1">Modalità</label>
+                                    <div className="flex gap-1.5">
+                                        <button
+                                            onClick={() => setVisualMode('scrolling')}
+                                            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold text-xs transition-all ${visualMode === 'scrolling' ? 'bg-amber-500 text-white shadow-md' : 'bg-gray-100 text-gray-600'}`}
+                                        >
+                                            🌊
+                                        </button>
+                                        <button
+                                            onClick={() => setVisualMode('static')}
+                                            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold text-xs transition-all ${visualMode === 'static' ? 'bg-amber-500 text-white shadow-md' : 'bg-gray-100 text-gray-600'}`}
+                                        >
+                                            📄
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Time Signature */}
+                                <div className="flex-1">
+                                    <label className="text-xs font-bold text-gray-600 uppercase block mb-1">Tempo</label>
+                                    <div className="flex gap-1.5">
+                                        {(['3/4', '4/4', '6/8'] as const).map(sig => (
+                                            <button
+                                                key={sig}
+                                                onClick={() => setTimeSignature(sig)}
+                                                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${timeSignature === sig ? 'bg-amber-600 text-white shadow-md' : 'bg-gray-100 text-gray-600'}`}
+                                            >
+                                                {sig}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Duration Options - Single Compact Row */}
+                        <div className="bg-white/90 backdrop-blur-sm p-2.5 rounded-xl shadow-sm border border-gray-100">
+                            <label className="text-xs font-bold text-gray-600 uppercase block mb-1.5">{t('common.notes_label')}</label>
+                            <div className="flex gap-1.5">
+                                {[
+                                    { id: 'w', icon: '𝅝' },
+                                    { id: 'h', icon: '𝅗𝅥' },
+                                    { id: 'q', icon: '♩' },
+                                    { id: '8', icon: '♪' },
+                                    { id: '16', icon: '♬' }
+                                ].map(opt => (
+                                    <button
+                                        key={opt.id}
+                                        onClick={() => setDurationOptions(prev => ({ ...prev, [opt.id]: !prev[opt.id as keyof typeof prev] }))}
+                                        className={`flex-1 py-2 rounded-lg font-bold text-lg transition-all ${durationOptions[opt.id as keyof typeof durationOptions] ? 'bg-amber-500 text-white shadow-md scale-105' : 'bg-gray-100 text-gray-400'}`}
+                                    >
+                                        {opt.icon}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Toggles - Compact Pills */}
+                        <div className="bg-white/90 backdrop-blur-sm p-2.5 rounded-xl shadow-sm border border-gray-100">
+                            <div className="flex flex-wrap gap-1.5">
+                                <label className={`flex-1 min-w-[90px] flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg cursor-pointer transition-all ${includeRests ? 'bg-amber-500 text-white shadow-md' : 'bg-gray-100 text-gray-600'}`}>
+                                    <input type="checkbox" checked={includeRests} onChange={e => setIncludeRests(e.target.checked)} className="hidden" />
+                                    <span className="text-xs font-semibold">🎵 {t('common.add_rests')}</span>
                                 </label>
-                            ))}
+                                <label className={`flex-1 min-w-[90px] flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg cursor-pointer transition-all ${isMetronomeEnabled ? 'bg-amber-500 text-white shadow-md' : 'bg-gray-100 text-gray-600'}`}>
+                                    <input type="checkbox" checked={isMetronomeEnabled} onChange={e => setIsMetronomeEnabled(e.target.checked)} className="hidden" />
+                                    <span className="text-xs font-semibold">⏱️ {t('common.metronome')}</span>
+                                </label>
+                                <label className={`flex-1 min-w-[90px] flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg cursor-pointer transition-all ${isSoundEnabled ? 'bg-amber-500 text-white shadow-md' : 'bg-gray-100 text-gray-600'}`}>
+                                    <input type="checkbox" checked={isSoundEnabled} onChange={e => setIsSoundEnabled(e.target.checked)} className="hidden" />
+                                    <span className="text-xs font-semibold">🔊 {t('common.sounds')}</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Time Signature */}
-                    <div className="bg-white p-3 rounded-lg shadow-sm">
-                        <label className="text-xs font-bold text-gray-500 uppercase block mb-2">Time Signature</label>
-                        <div className="flex gap-2">
-                            {(['3/4', '4/4', '6/8'] as const).map(sig => (
-                                <button
-                                    key={sig}
-                                    onClick={() => setTimeSignature(sig)}
-                                    className={`flex-1 py-2 rounded text-sm font-bold ${timeSignature === sig ? 'bg-amber-600 text-white' : 'bg-gray-100 text-gray-600'}`}
-                                >
-                                    {sig}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                        {/* Start Button - Prominent */}
+                        <button
+                            onClick={startGame}
+                            className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white font-black py-4 rounded-2xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-3 text-xl mt-4 border-2 border-amber-400"
+                        >
+                            <span className="text-3xl">▶️</span>
+                            <span>{t('common.start')}</span>
+                        </button>
 
-                    {/* Toggles */}
-                    <div className="bg-white p-3 rounded-lg shadow-sm space-y-2">
-                        <label className="flex items-center gap-2">
-                            <input type="checkbox" checked={includeRests} onChange={e => setIncludeRests(e.target.checked)} className="w-5 h-5 accent-amber-600" />
-                            <span className="text-sm font-medium">{t('common.add_rests')}</span>
-                        </label>
-                        <label className="flex items-center gap-2">
-                            <input type="checkbox" checked={isMetronomeEnabled} onChange={e => setIsMetronomeEnabled(e.target.checked)} className="w-5 h-5 accent-amber-600" />
-                            <span className="text-sm font-medium">{t('common.metronome')}</span>
-                        </label>
-                        <label className="flex items-center gap-2">
-                            <input type="checkbox" checked={isSoundEnabled} onChange={e => setIsSoundEnabled(e.target.checked)} className="w-5 h-5 accent-amber-600" />
-                            <span className="text-sm font-medium">{t('common.sounds')}</span>
-                        </label>
+                        {/* Bottom Spacer for Safe Area */}
+                        <div className="h-4"></div>
                     </div>
-
-                    {/* Start Button */}
-                    <button
-                        onClick={startGame}
-                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2 text-lg"
-                    >
-                        <span className="text-2xl">▶️</span>
-                        <span>{t('common.start')}</span>
-                    </button>
                 </div>
             )}
 
