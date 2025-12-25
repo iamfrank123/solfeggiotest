@@ -57,15 +57,15 @@ export default function ScrollingStaff({
             const displayNotes = notes.slice(0, 20);
 
           // Use dynamic width based on note count, but cap it or scale it
-const noteSpacing = 120;
-const contentWidth = Math.max(800, displayNotes.length * noteSpacing + 100);
+const noteSpacing = 110; // Ridotto da 120
+const contentWidth = Math.max(750, displayNotes.length * noteSpacing + 80); // Ridotto da 800 e da +100
 const height = 250;
 renderer.resize(contentWidth, height);
 
             const context = renderer.getContext();
 
             // Create a stave
-            const stave = new VF.Stave(10, 40, contentWidth - 20);
+            const stave = new VF.Stave(5, 40, contentWidth - 10); // Ridotto margine sinistro da 10 a 5, e larghezza da -20 a -10
 
             // Force Treble clef as requested to prevent visual jumping
             const clef = 'treble';
@@ -186,6 +186,7 @@ renderer.resize(contentWidth, height);
         </div>
     );
 }
+
 
 
 
