@@ -162,10 +162,10 @@ renderer.resize(contentWidth, height);
             {notes.length > 0 ? (
                 <>
                     <div
-                        ref={containerRef}
-                        className="flex justify-start items-center min-h-[250px] w-full overflow-x-auto overflow-y-hidden border-2 border-gray-200 rounded-lg"
-                        style={{ maxWidth: '100%' }}
-                    />
+    ref={containerRef}
+    className="flex justify-start items-center min-h-[250px] w-full overflow-x-auto overflow-y-hidden border-2 border-gray-200 rounded-lg"
+    style={{ maxWidth: '100%', paddingLeft: '30px' }}
+/>
 
                     <div className="text-center mt-4 text-gray-600">
                         <p className="text-sm">
@@ -186,6 +186,7 @@ renderer.resize(contentWidth, height);
         </div>
     );
 }
+
 
 
 
