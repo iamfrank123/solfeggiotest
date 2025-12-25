@@ -105,7 +105,7 @@ renderer.resize(contentWidth, height);
             voice.addTickables(vfNotes);
 
             // Format and draw
-            new Formatter().joinVoices([voice]).format([voice], contentWidth - 10);
+            new Formatter().joinVoices([voice]).format([voice], contentWidth - 2);
             voice.draw(context, stave);
 
             // Add smooth transition to the SVG for note movements
@@ -190,6 +190,7 @@ renderer.resize(contentWidth, height);
         </div>
     );
 }
+
 
 
 
