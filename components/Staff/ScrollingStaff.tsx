@@ -62,7 +62,7 @@ const noteSpacing = isMobile ? 200 : 110;
 const containerWidth = containerRef.current?.clientWidth || window.innerWidth;
 const contentWidth = isMobile 
     ? containerWidth * 1.5 // Usa la larghezza del container invece di window
-    : Math.max(750, displayNotes.length * noteSpacing + 80);
+    : Math.max(750, displayNotes.length * noteSpacing + 120);
 const height = 250;
 renderer.resize(contentWidth, height);
 
@@ -190,6 +190,7 @@ renderer.resize(contentWidth, height);
         </div>
     );
 }
+
 
 
 
