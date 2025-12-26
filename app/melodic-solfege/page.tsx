@@ -9,6 +9,7 @@ import { useRhythmAudio } from '@/hooks/useRhythmAudio';
 import { useMIDIInput } from '@/hooks/useMIDIInput';
 import { MIDINoteEvent } from '@/lib/types/midi';
 import { useTranslation } from '@/context/LanguageContext';
+import { midiManager } from '@/lib/midi/web-midi';
 
 // Game constants
 const SPAWN_X = 900;
@@ -152,10 +153,7 @@ export default function MelodicSolfegePage() {
 
     // MIDI hook: register handler and setup audio time reference
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const { midiManager } = require('@/lib/midi/web-midi');
-            midiManager.setAudioTimeGetter(getAudioTime);
-        }
+        midiManager.setAudioTimeGetter(getAudioTime);
     }, [getAudioTime]);
 
     useMIDIInput(handleMIDINote);

@@ -13,6 +13,8 @@ import { useTranslation } from '@/context/LanguageContext';
 import { useMIDIInput } from '@/hooks/useMIDIInput';
 import { MIDINoteEvent } from '@/lib/types/midi';
 import MIDILatencySettings from '@/components/Settings/MIDILatencySettings';
+import { midiManager } from '@/lib/midi/web-midi';
+import { midiManager } from '@/lib/midi/web-midi';
 
 // Game Constants
 const SPAWN_X = 900;
@@ -393,8 +395,8 @@ export default function RhythmPage() {
             const timeDiff = Math.abs(target.targetTime - currentTime);
 
             // Define Windows in Seconds
-            const PERFECT_WINDOW_S = 0.20; // 50ms
-            const GOOD_WINDOW_S = 0.30;   // 100ms
+            const PERFECT_WINDOW_S = 0.10; // 50ms
+            const GOOD_WINDOW_S = 0.15;   // 100ms
             // Miss window? If > 0.15s, maybe ignore click or count as miss?
             // Existing logic enforced auto-miss only if passed.
             // Here we treat click as attempt.
@@ -487,8 +489,8 @@ export default function RhythmPage() {
             const timeDiff = Math.abs(target.targetTime - evaluationTime);
 
             // Define Windows in Seconds
-            const PERFECT_WINDOW_S = 0.20; // 100ms total window
-            const GOOD_WINDOW_S = 0.30;    // 150ms total window
+            const PERFECT_WINDOW_S = 0.10; // 100ms total window
+            const GOOD_WINDOW_S = 0.15;    // 150ms total window
 
             // Handle rests
             if (target.note.isRest) {
@@ -540,10 +542,7 @@ export default function RhythmPage() {
 
     // Connect MIDI input and provide audio time reference
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const { midiManager } = require('@/lib/midi/web-midi');
-            midiManager.setAudioTimeGetter(getAudioTime);
-        }
+        midiManager.setAudioTimeGetter(getAudioTime);
     }, [getAudioTime]);
 
     useMIDIInput(handleMIDINote);
@@ -675,28 +674,29 @@ export default function RhythmPage() {
                     </div>
 
                     {/* BOTTOM ROW: Settings (Rests, Metronome, Sounds, MIDI) */}
-                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-6 pt-2 border-t border-gray-50">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 pt-2 border-t border-gray-50">
                         <label className="flex items-center space-x-2 cursor-pointer group">
                             <input type="checkbox" checked={includeRests} onChange={e => setIncludeRests(e.target.checked)} className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500" />
-                            <span className="text-gray-700 font-medium group-hover:text-amber-700 transition">{t('common.add_rests')}</span>
+                            <span className="text-gray-700 font-medium group-hover:text-amber-700 transition text-sm sm:text-base">{t('common.add_rests')}</span>
                         </label>
 
                         <label className="flex items-center space-x-2 cursor-pointer group">
                             <input type="checkbox" checked={isMetronomeEnabled} onChange={e => setIsMetronomeEnabled(e.target.checked)} className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500" />
-                            <span className="text-gray-700 font-medium group-hover:text-amber-700 transition">{t('common.metronome')}</span>
+                            <span className="text-gray-700 font-medium group-hover:text-amber-700 transition text-sm sm:text-base">{t('common.metronome')}</span>
                         </label>
 
                         <label className="flex items-center space-x-2 cursor-pointer group">
                             <input type="checkbox" checked={isSoundEnabled} onChange={e => setIsSoundEnabled(e.target.checked)} className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500" />
-                            <span className="text-gray-700 font-medium group-hover:text-amber-700 transition">{t('common.sounds')}</span>
+                            <span className="text-gray-700 font-medium group-hover:text-amber-700 transition text-sm sm:text-base">{t('common.sounds')}</span>
                         </label>
 
+                        {/* MIDI Settings Button - Always visible, mobile-optimized */}
                         <button
                             onClick={(e) => { e.stopPropagation(); setShowMIDISettings(true); }}
-                            className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition group"
+                            className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border-2 border-blue-300 rounded-lg transition-all group shadow-sm min-w-[120px]"
                         >
                             <span className="text-xl">🎹</span>
-                            <span className="text-blue-700 font-medium group-hover:text-blue-800 transition text-sm">MIDI Settings</span>
+                            <span className="text-blue-700 font-bold group-hover:text-blue-800 transition text-sm">MIDI</span>
                         </button>
                     </div>
 
