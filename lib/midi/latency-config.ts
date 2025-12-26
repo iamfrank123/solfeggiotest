@@ -19,7 +19,7 @@ export interface LatencyConfig {
 
 const DEFAULT_CONFIG: LatencyConfig = {
   enabled: true,
-  offsetMs: 25, // Default 25ms based on typical MIDI cable latency
+  offsetMs: 50, // Default 25ms based on typical MIDI cable latency
   minOffsetMs: 0,
   maxOffsetMs: 100,
 };
