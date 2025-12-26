@@ -14,7 +14,6 @@ import { useMIDIInput } from '@/hooks/useMIDIInput';
 import { MIDINoteEvent } from '@/lib/types/midi';
 import MIDILatencySettings from '@/components/Settings/MIDILatencySettings';
 import { midiManager } from '@/lib/midi/web-midi';
-import { midiManager } from '@/lib/midi/web-midi';
 
 // Game Constants
 const SPAWN_X = 900;
