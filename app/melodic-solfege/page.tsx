@@ -465,6 +465,16 @@ export default function MelodicSolfegePage() {
                     onMouseDown={handleInteraction}
                     onTouchStart={handleInteraction}
                 >
+                    {/* MIDI Settings Button - Small Mobile (top-right corner) */}
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setShowMIDISettings(true); }}
+                        className="absolute top-2 right-2 z-40 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white px-3 py-2 rounded-lg shadow-lg border-2 border-blue-600 transition-all flex items-center gap-1"
+                        title="MIDI Latency Settings"
+                    >
+                        <span className="text-base">🎹</span>
+                        <span className="text-xs font-bold hidden sm:inline">MIDI</span>
+                    </button>
+
                     {/* Internal Stats Overlay */}
                     <div className="absolute top-2 left-0 right-0 flex justify-center space-x-4 pointer-events-none z-30">
                         <ScoreStats perfect={stats.perfect} good={stats.good} miss={stats.miss} />
