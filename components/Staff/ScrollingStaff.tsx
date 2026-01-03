@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { GeneratedNote, KeySignature } from '@/lib/generator/types';
 import { getKeySignatureInfo } from '@/lib/generator/note-generator';
 import { Vex } from 'vexflow';
-import { useTranslation } from '@/context/LanguageContext';
 
 const { Factory, StaveNote, Voice, Formatter } = Vex.Flow;
 
@@ -21,7 +20,6 @@ export default function ScrollingStaff({
     keySignature,
     feedbackStatus
 }: ScrollingStaffProps) {
-    const { t } = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -53,26 +51,19 @@ export default function ScrollingStaff({
             const VF = Vex.Flow;
             const renderer = new VF.Renderer(renderDiv, VF.Renderer.Backends.SVG);
 
-            // Create notes (take first 20)
-            const displayNotes = notes.slice(0, 20);
-
-            // Riduci ulteriormente per mobile landscape
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-const noteSpacing = isMobile ? 200 : 110;
-const containerWidth = containerRef.current?.clientWidth || window.innerWidth;
-const contentWidth = isMobile 
-    ? containerWidth * 1.5 // Usa la larghezza del container invece di window
-    : Math.max(750, displayNotes.length * noteSpacing + 120);
-const height = 250;
-renderer.resize(contentWidth, height);
+            // Set dimensions to fit ~20 notes
+            const width = 2400;
+            const height = 250;
+            renderer.resize(width, height);
 
             const context = renderer.getContext();
 
             // Create a stave
-            const stave = new VF.Stave(10, 40, contentWidth - 20);
+            const stave = new VF.Stave(10, 40, width - 20);
 
             // Force Treble clef as requested to prevent visual jumping
             const clef = 'treble';
+
             stave.addClef(clef);
 
             // Add key signature
@@ -82,6 +73,9 @@ renderer.resize(contentWidth, height);
             stave.addKeySignature(keyStr);
 
             stave.setContext(context).draw();
+
+            // Create notes (take first 20)
+            const displayNotes = notes.slice(0, 20);
             const vfNotes = displayNotes.map(note => {
                 const accidentalStr = note.accidental === '#' ? '#' : note.accidental === 'b' ? 'b' : '';
                 const noteStr = `${note.note.toLowerCase()}${accidentalStr}/${note.octave}`;
@@ -105,7 +99,7 @@ renderer.resize(contentWidth, height);
             voice.addTickables(vfNotes);
 
             // Format and draw
-            new Formatter().joinVoices([voice]).format([voice], contentWidth - 2);
+            new Formatter().joinVoices([voice]).format([voice], width - 100);
             voice.draw(context, stave);
 
             // Add smooth transition to the SVG for note movements
@@ -149,55 +143,44 @@ renderer.resize(contentWidth, height);
             if (containerRef.current) {
                 containerRef.current.innerHTML = `
                     <div style="color: red; padding: 20px;">
-                        <strong>${t('sight_reading.render_error')}:</strong> ${error}
+                        <strong>Errore rendering:</strong> ${error}
                     </div>
                 `;
             }
         }
 
-    }, [notes, currentNoteIndex, keySignature, feedbackStatus, t]);
+    }, [notes, currentNoteIndex, keySignature, feedbackStatus]);
 
     return (
         <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-                {t('sight_reading.staff_title')}
+                🎵 Pentagramma - Sight Reading
             </h2>
 
             {notes.length > 0 ? (
                 <>
                     <div
                         ref={containerRef}
-                        className="flex justify-start items-center min-h-[250px] w-full overflow-x-auto overflow-y-hidden border-2 border-gray-200 rounded-lg"
+                        className="flex justify-start items-center min-h-[250px] overflow-x-auto overflow-y-hidden border-2 border-gray-200 rounded-lg"
                         style={{ maxWidth: '100%' }}
                     />
 
                     <div className="text-center mt-4 text-gray-600">
                         <p className="text-sm">
                             <span className="inline-block w-4 h-4 bg-blue-600 rounded-full mr-2"></span>
-                            {t('sight_reading.current_note_label')}
+                            Nota corrente da suonare (prima nota)
                         </p>
                         <p className="text-sm mt-1">
                             <span className="inline-block w-4 h-4 bg-gray-400 rounded-full mr-2"></span>
-                            {t('sight_reading.played_notes_label')}
+                            Note già suonate
                         </p>
                     </div>
                 </>
             ) : (
                 <div className="text-center text-gray-500 py-20">
-                    <p className="text-xl">{t('sight_reading.start_prompt')}</p>
+                    <p className="text-xl">Premi <strong>START</strong> per iniziare l'esercizio</p>
                 </div>
             )}
         </div>
     );
 }
-
-
-
-
-
-
-
-
-
-
-
