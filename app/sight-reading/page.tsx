@@ -37,7 +37,7 @@ export default function HomePage() {
     const handleStartExercise = useCallback(() => {
         // Create new queue manager with current settings
         const manager = new NoteQueueManager(keySignature, noteRange);
-        manager.initializeQueue(20); // Generate 20 initial notes for preview
+        manager.initializeQueue(10); // Generate 20 initial notes for preview
 
         queueManagerRef.current = manager;
         setNoteQueue(manager.getAllNotes());
@@ -224,3 +224,4 @@ export default function HomePage() {
         </div>
     );
 }
+
