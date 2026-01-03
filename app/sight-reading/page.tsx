@@ -11,11 +11,8 @@ import { NoteQueueManager } from '@/lib/generator/queue-manager';
 import { checkNoteMatch } from '@/lib/generator/note-generator';
 import { useMIDIInput } from '@/hooks/useMIDIInput';
 import { MIDINoteEvent } from '@/lib/types/midi';
-import OrientationPrompt from '@/components/Layout/OrientationPrompt';
-import { useTranslation } from '@/context/LanguageContext';
 
 export default function HomePage() {
-    const { t } = useTranslation();
     // Settings state
     const [keySignature, setKeySignature] = useState<KeySignature>('C');
     const [noteRange, setNoteRange] = useState<NoteRange>({ low: 'C4', high: 'C5' });
@@ -37,20 +34,14 @@ export default function HomePage() {
     const isProcessingRef = useRef(false);
 
     // Start exercise
-    const handleStartExercise = useCallback(async () => {
-        // Fullscreen attempt (safe for iOS)
-        try {
-            if (document.fullscreenEnabled && !document.fullscreenElement) {
-                await document.documentElement.requestFullscreen().catch(() => { });
-            }
-        } catch (e) { }
-
+    const handleStartExercise = useCallback(() => {
         // Create new queue manager with current settings
         const manager = new NoteQueueManager(keySignature, noteRange);
         manager.initializeQueue(20); // Generate 20 initial notes for preview
 
         queueManagerRef.current = manager;
         setNoteQueue(manager.getAllNotes());
+        setCurrentNoteIndex(0);
         setCurrentNoteIndex(0);
         setIsExerciseActive(true);
         setFeedbackStatus('idle');
@@ -123,24 +114,24 @@ export default function HomePage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
             <Header />
-            <OrientationPrompt />
 
             <main className="container mx-auto px-4 py-8 max-w-6xl">
                 {/* Title */}
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                        {t('sight_reading.title')}
+                        🎹 Lettura Musicale Continua
                     </h1>
                     <p className="text-lg text-gray-600 mb-4">
-                        {t('sight_reading.subtitle')}
+                        Esercizio continuo di lettura musicale a scorrimento
                     </p>
 
                     <div className="bg-blue-50 border-l-4 border-blue-500 p-4 max-w-2xl mx-auto mb-8 text-left flex items-start">
                         <span className="text-2xl mr-3">🎹</span>
                         <div>
-                            <p className="font-bold text-blue-800">{t('sight_reading.midi_info_title')}</p>
+                            <p className="font-bold text-blue-800">Modalità MIDI</p>
                             <p className="text-blue-700 text-sm">
-                                {t('sight_reading.midi_info_desc')}
+                                Questo esercizio funziona <strong>solo</strong> con uno strumento connesso tramite cavo MIDI.
+                                Suona le note corrette sulla tua tastiera quando appaiono evidenziate.
                             </p>
                         </div>
                     </div>
@@ -161,16 +152,16 @@ export default function HomePage() {
                 />
 
                 {/* Scrolling Staff Display */}
-                <div ref={containerRef} className="relative w-full overflow-hidden">
+                <div ref={containerRef} className="relative">
                     {isExerciseActive && (
                         <div className="absolute top-0 left-0 right-0 flex justify-center -mt-8 z-10 pointer-events-none">
                             <div className="bg-white/90 backdrop-blur px-6 py-2 rounded-full shadow-md border border-gray-200 flex gap-8">
                                 <div className="flex flex-col items-center">
-                                    <span className="text-xs font-bold text-green-600 uppercase">{t('sight_reading.correct')}</span>
+                                    <span className="text-xs font-bold text-green-600 uppercase">Corrette</span>
                                     <span className="text-2xl font-bold text-green-700">{stats.perfect}</span>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <span className="text-xs font-bold text-red-500 uppercase">{t('sight_reading.incorrect')}</span>
+                                    <span className="text-xs font-bold text-red-500 uppercase">Sbagliate</span>
                                     <span className="text-2xl font-bold text-red-600">{stats.miss}</span>
                                 </div>
                             </div>
@@ -188,21 +179,44 @@ export default function HomePage() {
                 {!isExerciseActive && (
                     <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
                         <h3 className="text-xl font-bold text-gray-800 mb-4">
-                            {t('sight_reading.how_it_works_title')}
+                            📖 Come funziona la Lettura Musicale Continua
                         </h3>
                         <ul className="space-y-3 text-gray-700">
-                            {[1, 2, 3, 4, 5].map(step => (
-                                <li key={step} className="flex items-start">
-                                    <span className="text-blue-600 mr-3 text-xl">{step}.</span>
-                                    <span>
-                                        {t(`sight_reading.step${step}`)}
-                                    </span>
-                                </li>
-                            ))}
+                            <li className="flex items-start">
+                                <span className="text-blue-600 mr-3 text-xl">1.</span>
+                                <span>
+                                    <strong>Configura:</strong> Scegli tonalità e range di note
+                                </span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-blue-600 mr-3 text-xl">2.</span>
+                                <span>
+                                    <strong>Premi START:</strong> Vedrai 8-10 note generate sul pentagramma
+                                </span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-blue-600 mr-3 text-xl">3.</span>
+                                <span>
+                                    <strong>Suona la PRIMA nota (BLU):</strong> La prima nota è sempre quella da suonare
+                                </span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-blue-600 mr-3 text-xl">4.</span>
+                                <span>
+                                    <strong>Procedi automaticamente:</strong> Note corrette diventano grigie, l'esercizio avanza immediatamente
+                                </span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-blue-600 mr-3 text-xl">5.</span>
+                                <span>
+                                    <strong>Esercizio infinito:</strong> Continua finché non premi STOP
+                                </span>
+                            </li>
                         </ul>
                     </div>
                 )}
 
+                {/* Exercise Stats (when active) - REMOVED (Replaced by ScoreStats) */}
             </main>
 
             {/* Feedback Overlay */}
