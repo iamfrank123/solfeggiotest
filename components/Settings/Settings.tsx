@@ -14,9 +14,6 @@ interface SettingsProps {
     onStopExercise: () => void;
 }
 
-/**
- * All possible note options for range selection
- */
 const NOTE_OPTIONS = [
     'C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3',
     'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4',
@@ -76,20 +73,22 @@ export default function Settings({
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('settings.title')}</h2>
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6 w-full max-w-full overflow-hidden">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">
+                {t('settings.title')}
+            </h2>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Key Signature Selection */}
-                <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <div className="min-w-0">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                         {t('settings.key_signature')}
                     </label>
                     <select
                         value={keySignature}
                         onChange={(e) => onKeySignatureChange(e.target.value as KeySignature)}
                         disabled={isExerciseActive}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-lg disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-sm sm:text-lg disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
                         {KEY_SIGNATURES.map((key) => (
                             <option key={key} value={key}>
@@ -100,16 +99,16 @@ export default function Settings({
                 </div>
 
                 {/* Note Range Selection */}
-                <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <div className="min-w-0">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                         {t('settings.note_range')}
                     </label>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                         <select
                             value={lowNote}
                             onChange={(e) => handleLowNoteChange(e.target.value)}
                             disabled={isExerciseActive}
-                            className="flex-1 px-3 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-lg disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            className="flex-1 min-w-0 px-2 sm:px-3 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-sm sm:text-lg disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             {NOTE_OPTIONS.map((note) => (
                                 <option key={note} value={note}>
@@ -118,13 +117,13 @@ export default function Settings({
                             ))}
                         </select>
 
-                        <span className="text-gray-500 font-bold text-lg">→</span>
+                        <span className="text-gray-500 font-bold text-sm sm:text-lg flex-shrink-0">→</span>
 
                         <select
                             value={highNote}
                             onChange={(e) => handleHighNoteChange(e.target.value)}
                             disabled={isExerciseActive}
-                            className="flex-1 px-3 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-lg disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            className="flex-1 min-w-0 px-2 sm:px-3 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors text-sm sm:text-lg disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             {NOTE_OPTIONS.map((note) => (
                                 <option key={note} value={note}>
@@ -135,17 +134,17 @@ export default function Settings({
                     </div>
 
                     {error && (
-                        <p className="mt-2 text-sm text-red-600">⚠️ {error}</p>
+                        <p className="mt-2 text-xs sm:text-sm text-red-600">⚠️ {error}</p>
                     )}
                 </div>
             </div>
 
             {/* START/STOP Button */}
-            <div className="mt-6 text-center">
+            <div className="mt-4 sm:mt-6 text-center">
                 {!isExerciseActive ? (
                     <button
                         onClick={onStartExercise}
-                        className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-xl rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-base sm:text-xl rounded-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                         disabled={!!error}
                     >
                         {t('settings.start_exercise')}
@@ -153,7 +152,7 @@ export default function Settings({
                 ) : (
                     <button
                         onClick={onStopExercise}
-                        className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-xl rounded-lg shadow-lg transition-all transform hover:scale-105"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-base sm:text-xl rounded-lg shadow-lg transition-all transform hover:scale-105 active:scale-95"
                     >
                         {t('settings.stop_exercise')}
                     </button>
