@@ -115,21 +115,21 @@ export default function HomePage() {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
             <Header />
 
-            <main className="container mx-auto px-4 py-8 max-w-6xl">
+            <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-8 max-w-6xl">
                 {/* Title */}
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                <div className="text-center mb-4 sm:mb-8">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
                         🎹 Lettura Musicale Continua
                     </h1>
-                    <p className="text-lg text-gray-600 mb-4">
+                    <p className="text-sm sm:text-base lg:text-lg text-gray-600 mb-3 sm:mb-4 px-2">
                         Esercizio continuo di lettura musicale a scorrimento
                     </p>
 
-                    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 max-w-2xl mx-auto mb-8 text-left flex items-start">
-                        <span className="text-2xl mr-3">🎹</span>
-                        <div>
-                            <p className="font-bold text-blue-800">Modalità MIDI</p>
-                            <p className="text-blue-700 text-sm">
+                    <div className="bg-blue-50 border-l-4 border-blue-500 p-3 sm:p-4 max-w-2xl mx-auto mb-4 sm:mb-8 text-left flex items-start">
+                        <span className="text-xl sm:text-2xl mr-2 sm:mr-3 flex-shrink-0">🎹</span>
+                        <div className="min-w-0">
+                            <p className="font-bold text-blue-800 text-sm sm:text-base">Modalità MIDI</p>
+                            <p className="text-blue-700 text-xs sm:text-sm">
                                 Questo esercizio funziona <strong>solo</strong> con uno strumento connesso tramite cavo MIDI.
                                 Suona le note corrette sulla tua tastiera quando appaiono evidenziate.
                             </p>
@@ -138,7 +138,7 @@ export default function HomePage() {
                 </div>
 
                 {/* MIDI Status - Removed large blocks, now in Header */}
-                <div className="mb-6 h-4"></div>
+                <div className="mb-4 sm:mb-6 h-4"></div>
 
                 {/* Settings */}
                 <Settings
@@ -154,15 +154,15 @@ export default function HomePage() {
                 {/* Scrolling Staff Display */}
                 <div ref={containerRef} className="relative">
                     {isExerciseActive && (
-                        <div className="absolute top-0 left-0 right-0 flex justify-center -mt-8 z-10 pointer-events-none">
-                            <div className="bg-white/90 backdrop-blur px-6 py-2 rounded-full shadow-md border border-gray-200 flex gap-8">
+                        <div className="absolute top-0 left-2 right-2 sm:left-0 sm:right-0 flex justify-center -mt-6 sm:-mt-8 z-10 pointer-events-none">
+                            <div className="bg-white/90 backdrop-blur px-3 sm:px-6 py-1.5 sm:py-2 rounded-full shadow-md border border-gray-200 flex gap-3 sm:gap-8">
                                 <div className="flex flex-col items-center">
-                                    <span className="text-xs font-bold text-green-600 uppercase">Corrette</span>
-                                    <span className="text-2xl font-bold text-green-700">{stats.perfect}</span>
+                                    <span className="text-[10px] sm:text-xs font-bold text-green-600 uppercase">Corrette</span>
+                                    <span className="text-lg sm:text-2xl font-bold text-green-700">{stats.perfect}</span>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <span className="text-xs font-bold text-red-500 uppercase">Sbagliate</span>
-                                    <span className="text-2xl font-bold text-red-600">{stats.miss}</span>
+                                    <span className="text-[10px] sm:text-xs font-bold text-red-500 uppercase">Sbagliate</span>
+                                    <span className="text-lg sm:text-2xl font-bold text-red-600">{stats.miss}</span>
                                 </div>
                             </div>
                         </div>
@@ -177,38 +177,38 @@ export default function HomePage() {
 
                 {/* Instructions */}
                 {!isExerciseActive && (
-                    <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
-                        <h3 className="text-xl font-bold text-gray-800 mb-4">
+                    <div className="mt-4 sm:mt-8 bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
                             📖 Come funziona la Lettura Musicale Continua
                         </h3>
-                        <ul className="space-y-3 text-gray-700">
+                        <ul className="space-y-2 sm:space-y-3 text-gray-700 text-sm sm:text-base">
                             <li className="flex items-start">
-                                <span className="text-blue-600 mr-3 text-xl">1.</span>
-                                <span>
+                                <span className="text-blue-600 mr-2 sm:mr-3 text-lg sm:text-xl flex-shrink-0">1.</span>
+                                <span className="min-w-0">
                                     <strong>Configura:</strong> Scegli tonalità e range di note
                                 </span>
                             </li>
                             <li className="flex items-start">
-                                <span className="text-blue-600 mr-3 text-xl">2.</span>
-                                <span>
+                                <span className="text-blue-600 mr-2 sm:mr-3 text-lg sm:text-xl flex-shrink-0">2.</span>
+                                <span className="min-w-0">
                                     <strong>Premi START:</strong> Vedrai 8-10 note generate sul pentagramma
                                 </span>
                             </li>
                             <li className="flex items-start">
-                                <span className="text-blue-600 mr-3 text-xl">3.</span>
-                                <span>
+                                <span className="text-blue-600 mr-2 sm:mr-3 text-lg sm:text-xl flex-shrink-0">3.</span>
+                                <span className="min-w-0">
                                     <strong>Suona la PRIMA nota (BLU):</strong> La prima nota è sempre quella da suonare
                                 </span>
                             </li>
                             <li className="flex items-start">
-                                <span className="text-blue-600 mr-3 text-xl">4.</span>
-                                <span>
+                                <span className="text-blue-600 mr-2 sm:mr-3 text-lg sm:text-xl flex-shrink-0">4.</span>
+                                <span className="min-w-0">
                                     <strong>Procedi automaticamente:</strong> Note corrette diventano grigie, l'esercizio avanza immediatamente
                                 </span>
                             </li>
                             <li className="flex items-start">
-                                <span className="text-blue-600 mr-3 text-xl">5.</span>
-                                <span>
+                                <span className="text-blue-600 mr-2 sm:mr-3 text-lg sm:text-xl flex-shrink-0">5.</span>
+                                <span className="min-w-0">
                                     <strong>Esercizio infinito:</strong> Continua finché non premi STOP
                                 </span>
                             </li>
@@ -224,4 +224,3 @@ export default function HomePage() {
         </div>
     );
 }
-
