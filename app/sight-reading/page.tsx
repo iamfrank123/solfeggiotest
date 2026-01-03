@@ -37,11 +37,10 @@ export default function HomePage() {
     const handleStartExercise = useCallback(() => {
         // Create new queue manager with current settings
         const manager = new NoteQueueManager(keySignature, noteRange);
-        manager.initializeQueue(10); // Generate 20 initial notes for preview
+        manager.initializeQueue(10);
 
         queueManagerRef.current = manager;
         setNoteQueue(manager.getAllNotes());
-        setCurrentNoteIndex(0);
         setCurrentNoteIndex(0);
         setIsExerciseActive(true);
         setFeedbackStatus('idle');
@@ -65,7 +64,6 @@ export default function HomePage() {
     const handleMIDINote = useCallback((event: MIDINoteEvent) => {
         if (!isExerciseActive || !queueManagerRef.current || event.type !== 'noteOn') return;
 
-        // Sync lock to prevent double-fire
         if (isProcessingRef.current) return;
 
         const manager = queueManagerRef.current;
@@ -76,33 +74,22 @@ export default function HomePage() {
         const isCorrect = checkNoteMatch(event.pitch, currentNote);
 
         if (isCorrect) {
-            // Lock briefly to prevent double-trigger on same event
             isProcessingRef.current = true;
             setTimeout(() => { isProcessingRef.current = false; }, 100);
 
-            // Correct note! 
-            // 1. Update Stats
             setStats(s => ({ ...s, perfect: s.perfect + 1 }));
-
-            // 2. Shift Queue IMMEDIATELY (No delay)
             manager.shiftQueue();
             setNoteQueue([...manager.getAllNotes()]);
-
-            // 3. Show feedback (non-blocking)
             setFeedbackStatus('correct');
-            // Clear feedback visual after a delay, but logic continues
             setTimeout(() => setFeedbackStatus('idle'), 500);
 
         } else {
-            // Lock briefly to prevent spamming errors (e.g. +11 errors)
             isProcessingRef.current = true;
             setTimeout(() => { isProcessingRef.current = false; }, 200);
 
-            // Incorrect note
             setFeedbackStatus('incorrect');
             setStats(s => ({ ...s, miss: s.miss + 1 }));
 
-            // Clear feedback after a moment
             setTimeout(() => {
                 setFeedbackStatus('idle');
             }, 500);
@@ -112,111 +99,115 @@ export default function HomePage() {
     const { isConnected, error: midiError } = useMIDIInput(handleMIDINote);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 overflow-x-hidden">
             <Header />
 
-            <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-8 max-w-6xl">
-                {/* Title */}
-                <div className="text-center mb-4 sm:mb-8">
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
-                        🎹 Lettura Musicale Continua
-                    </h1>
-                    <p className="text-sm sm:text-base lg:text-lg text-gray-600 mb-3 sm:mb-4 px-2">
-                        Esercizio continuo di lettura musicale a scorrimento
-                    </p>
+            <main className="w-full max-w-full overflow-x-hidden px-2 sm:px-4 py-4 sm:py-8">
+                <div className="max-w-6xl mx-auto">
+                    {/* Title */}
+                    <div className="text-center mb-4 sm:mb-8">
+                        <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 px-2">
+                            🎹 Lettura Musicale Continua
+                        </h1>
+                        <p className="text-sm sm:text-base lg:text-lg text-gray-600 mb-3 sm:mb-4 px-2">
+                            Esercizio continuo di lettura musicale a scorrimento
+                        </p>
 
-                    <div className="bg-blue-50 border-l-4 border-blue-500 p-3 sm:p-4 max-w-2xl mx-auto mb-4 sm:mb-8 text-left flex items-start">
-                        <span className="text-xl sm:text-2xl mr-2 sm:mr-3 flex-shrink-0">🎹</span>
-                        <div className="min-w-0">
-                            <p className="font-bold text-blue-800 text-sm sm:text-base">Modalità MIDI</p>
-                            <p className="text-blue-700 text-xs sm:text-sm">
-                                Questo esercizio funziona <strong>solo</strong> con uno strumento connesso tramite cavo MIDI.
-                                Suona le note corrette sulla tua tastiera quando appaiono evidenziate.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* MIDI Status - Removed large blocks, now in Header */}
-                <div className="mb-4 sm:mb-6 h-4"></div>
-
-                {/* Settings */}
-                <Settings
-                    keySignature={keySignature}
-                    noteRange={noteRange}
-                    onKeySignatureChange={setKeySignature}
-                    onNoteRangeChange={setNoteRange}
-                    isExerciseActive={isExerciseActive}
-                    onStartExercise={handleStartExercise}
-                    onStopExercise={handleStopExercise}
-                />
-
-                {/* Scrolling Staff Display */}
-                <div ref={containerRef} className="relative">
-                    {isExerciseActive && (
-                        <div className="absolute top-0 left-2 right-2 sm:left-0 sm:right-0 flex justify-center -mt-6 sm:-mt-8 z-10 pointer-events-none">
-                            <div className="bg-white/90 backdrop-blur px-3 sm:px-6 py-1.5 sm:py-2 rounded-full shadow-md border border-gray-200 flex gap-3 sm:gap-8">
-                                <div className="flex flex-col items-center">
-                                    <span className="text-[10px] sm:text-xs font-bold text-green-600 uppercase">Corrette</span>
-                                    <span className="text-lg sm:text-2xl font-bold text-green-700">{stats.perfect}</span>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                    <span className="text-[10px] sm:text-xs font-bold text-red-500 uppercase">Sbagliate</span>
-                                    <span className="text-lg sm:text-2xl font-bold text-red-600">{stats.miss}</span>
-                                </div>
+                        <div className="bg-blue-50 border-l-4 border-blue-500 p-3 sm:p-4 mx-2 sm:mx-auto max-w-2xl mb-4 sm:mb-8 text-left flex items-start">
+                            <span className="text-xl sm:text-2xl mr-2 sm:mr-3 flex-shrink-0">🎹</span>
+                            <div className="min-w-0 flex-1">
+                                <p className="font-bold text-blue-800 text-sm sm:text-base">Modalità MIDI</p>
+                                <p className="text-blue-700 text-xs sm:text-sm break-words">
+                                    Questo esercizio funziona <strong>solo</strong> con uno strumento connesso tramite cavo MIDI.
+                                    Suona le note corrette sulla tua tastiera quando appaiono evidenziate.
+                                </p>
                             </div>
                         </div>
-                    )}
-                    <ScrollingStaff
-                        notes={noteQueue}
-                        currentNoteIndex={currentNoteIndex}
-                        keySignature={keySignature}
-                        feedbackStatus={feedbackStatus}
-                    />
-                </div>
-
-                {/* Instructions */}
-                {!isExerciseActive && (
-                    <div className="mt-4 sm:mt-8 bg-white rounded-xl shadow-lg p-4 sm:p-6">
-                        <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
-                            📖 Come funziona la Lettura Musicale Continua
-                        </h3>
-                        <ul className="space-y-2 sm:space-y-3 text-gray-700 text-sm sm:text-base">
-                            <li className="flex items-start">
-                                <span className="text-blue-600 mr-2 sm:mr-3 text-lg sm:text-xl flex-shrink-0">1.</span>
-                                <span className="min-w-0">
-                                    <strong>Configura:</strong> Scegli tonalità e range di note
-                                </span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-blue-600 mr-2 sm:mr-3 text-lg sm:text-xl flex-shrink-0">2.</span>
-                                <span className="min-w-0">
-                                    <strong>Premi START:</strong> Vedrai 8-10 note generate sul pentagramma
-                                </span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-blue-600 mr-2 sm:mr-3 text-lg sm:text-xl flex-shrink-0">3.</span>
-                                <span className="min-w-0">
-                                    <strong>Suona la PRIMA nota (BLU):</strong> La prima nota è sempre quella da suonare
-                                </span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-blue-600 mr-2 sm:mr-3 text-lg sm:text-xl flex-shrink-0">4.</span>
-                                <span className="min-w-0">
-                                    <strong>Procedi automaticamente:</strong> Note corrette diventano grigie, l'esercizio avanza immediatamente
-                                </span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-blue-600 mr-2 sm:mr-3 text-lg sm:text-xl flex-shrink-0">5.</span>
-                                <span className="min-w-0">
-                                    <strong>Esercizio infinito:</strong> Continua finché non premi STOP
-                                </span>
-                            </li>
-                        </ul>
                     </div>
-                )}
 
-                {/* Exercise Stats (when active) - REMOVED (Replaced by ScoreStats) */}
+                    {/* MIDI Status */}
+                    <div className="mb-4 sm:mb-6 h-4"></div>
+
+                    {/* Settings - wrapped in container */}
+                    <div className="w-full max-w-full overflow-x-hidden">
+                        <Settings
+                            keySignature={keySignature}
+                            noteRange={noteRange}
+                            onKeySignatureChange={setKeySignature}
+                            onNoteRangeChange={setNoteRange}
+                            isExerciseActive={isExerciseActive}
+                            onStartExercise={handleStartExercise}
+                            onStopExercise={handleStopExercise}
+                        />
+                    </div>
+
+                    {/* Scrolling Staff Display - CRITICAL: force contain */}
+                    <div ref={containerRef} className="relative w-full max-w-full overflow-x-hidden">
+                        {isExerciseActive && (
+                            <div className="absolute top-0 left-0 right-0 flex justify-center -mt-6 sm:-mt-8 z-10 pointer-events-none px-2">
+                                <div className="bg-white/90 backdrop-blur px-3 sm:px-6 py-1.5 sm:py-2 rounded-full shadow-md border border-gray-200 flex gap-3 sm:gap-8">
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[10px] sm:text-xs font-bold text-green-600 uppercase whitespace-nowrap">Corrette</span>
+                                        <span className="text-lg sm:text-2xl font-bold text-green-700">{stats.perfect}</span>
+                                    </div>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[10px] sm:text-xs font-bold text-red-500 uppercase whitespace-nowrap">Sbagliate</span>
+                                        <span className="text-lg sm:text-2xl font-bold text-red-600">{stats.miss}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        <div className="w-full max-w-full overflow-x-auto">
+                            <ScrollingStaff
+                                notes={noteQueue}
+                                currentNoteIndex={currentNoteIndex}
+                                keySignature={keySignature}
+                                feedbackStatus={feedbackStatus}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Instructions */}
+                    {!isExerciseActive && (
+                        <div className="mt-4 sm:mt-8 bg-white rounded-xl shadow-lg p-4 sm:p-6 mx-2 sm:mx-0">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
+                                📖 Come funziona
+                            </h3>
+                            <ul className="space-y-2 sm:space-y-3 text-gray-700 text-xs sm:text-base">
+                                <li className="flex items-start">
+                                    <span className="text-blue-600 mr-2 text-base sm:text-xl flex-shrink-0">1.</span>
+                                    <span className="min-w-0 flex-1">
+                                        <strong>Configura:</strong> Scegli tonalità e range
+                                    </span>
+                                </li>
+                                <li className="flex items-start">
+                                    <span className="text-blue-600 mr-2 text-base sm:text-xl flex-shrink-0">2.</span>
+                                    <span className="min-w-0 flex-1">
+                                        <strong>Premi START:</strong> Vedrai 8-10 note sul pentagramma
+                                    </span>
+                                </li>
+                                <li className="flex items-start">
+                                    <span className="text-blue-600 mr-2 text-base sm:text-xl flex-shrink-0">3.</span>
+                                    <span className="min-w-0 flex-1">
+                                        <strong>Suona la PRIMA nota (BLU)</strong>
+                                    </span>
+                                </li>
+                                <li className="flex items-start">
+                                    <span className="text-blue-600 mr-2 text-base sm:text-xl flex-shrink-0">4.</span>
+                                    <span className="min-w-0 flex-1">
+                                        <strong>Procedi automaticamente:</strong> L'esercizio avanza
+                                    </span>
+                                </li>
+                                <li className="flex items-start">
+                                    <span className="text-blue-600 mr-2 text-base sm:text-xl flex-shrink-0">5.</span>
+                                    <span className="min-w-0 flex-1">
+                                        <strong>Esercizio infinito</strong> fino a STOP
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    )}
+                </div>
             </main>
 
             {/* Feedback Overlay */}
