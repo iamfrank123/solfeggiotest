@@ -21,52 +21,67 @@ export default function ScrollingStaff({
     feedbackStatus
 }: ScrollingStaffProps) {
     const containerRef = useRef<HTMLDivElement>(null);
+    const [containerWidth, setContainerWidth] = useState(0);
+
+    // Measure container width on mount and resize
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        const updateWidth = () => {
+            if (containerRef.current) {
+                setContainerWidth(containerRef.current.offsetWidth);
+            }
+        };
+
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        return () => window.removeEventListener('resize', updateWidth);
+    }, []);
 
     useEffect(() => {
-        if (!containerRef.current) {
-            console.log('No container ref');
+        if (!containerRef.current || containerWidth === 0) {
             return;
         }
 
         if (notes.length === 0) {
-            console.log('No notes to display');
             return;
         }
-
-        console.log('Rendering staff with', notes.length, 'notes');
 
         // Clear previous rendering
         containerRef.current.innerHTML = '';
 
         try {
-            // Create a unique container for this render
             const uniqueId = 'vexflow-scroll-' + Math.random().toString(36).substr(2, 9);
             const renderDiv = document.createElement('div');
             renderDiv.id = uniqueId;
             renderDiv.style.overflowX = 'auto';
             renderDiv.style.overflowY = 'hidden';
+            renderDiv.style.width = '100%';
             containerRef.current.appendChild(renderDiv);
 
-            // Use Vex.Flow.Renderer instead of Factory for more control
             const VF = Vex.Flow;
             const renderer = new VF.Renderer(renderDiv, VF.Renderer.Backends.SVG);
 
-            // Set dimensions to fit ~20 notes
-            const width = 2400;
+            // Responsive width calculation
+            // On mobile: fit to screen, on desktop: allow horizontal scroll
+            const isMobile = containerWidth < 768;
+            const notesPerScreen = isMobile ? 4 : 8;
+            const noteWidth = isMobile ? 80 : 120;
+            const displayNotes = notes.slice(0, 20);
+            const totalWidth = Math.max(containerWidth, displayNotes.length * noteWidth + 100);
+            
+            const width = totalWidth;
             const height = 250;
+            
             renderer.resize(width, height);
-
             const context = renderer.getContext();
 
             // Create a stave
             const stave = new VF.Stave(10, 40, width - 20);
-
-            // Force Treble clef as requested to prevent visual jumping
             const clef = 'treble';
 
             stave.addClef(clef);
 
-            // Add key signature
             const keyStr = keySignature === 'Bb' || keySignature === 'Eb' || keySignature === 'Ab'
                 ? keySignature
                 : keySignature;
@@ -74,8 +89,7 @@ export default function ScrollingStaff({
 
             stave.setContext(context).draw();
 
-            // Create notes (take first 20)
-            const displayNotes = notes.slice(0, 20);
+            // Create notes
             const vfNotes = displayNotes.map(note => {
                 const accidentalStr = note.accidental === '#' ? '#' : note.accidental === 'b' ? 'b' : '';
                 const noteStr = `${note.note.toLowerCase()}${accidentalStr}/${note.octave}`;
@@ -86,7 +100,6 @@ export default function ScrollingStaff({
                     duration: 'w'
                 });
 
-                // Add accidental if needed
                 if (note.accidental) {
                     staveNote.addModifier(new VF.Accidental(note.accidental));
                 }
@@ -102,83 +115,82 @@ export default function ScrollingStaff({
             new Formatter().joinVoices([voice]).format([voice], width - 100);
             voice.draw(context, stave);
 
-            // Add smooth transition to the SVG for note movements
+            // Add smooth transition and colors
             const svg = renderDiv.querySelector('svg');
             if (svg) {
                 svg.style.transition = 'all 0.3s ease-out';
 
-                // Apply colors to noteheads
                 const noteheads = svg.querySelectorAll('.vf-notehead');
                 noteheads.forEach((notehead, index) => {
                     if (index === currentNoteIndex) {
-                        // Current note
                         if (feedbackStatus === 'correct') {
-                            notehead.setAttribute('fill', '#22c55e'); // green
+                            notehead.setAttribute('fill', '#22c55e');
                             notehead.setAttribute('stroke', '#22c55e');
                         } else if (feedbackStatus === 'incorrect') {
-                            notehead.setAttribute('fill', '#ef4444'); // red
+                            notehead.setAttribute('fill', '#ef4444');
                             notehead.setAttribute('stroke', '#ef4444');
                         } else {
-                            notehead.setAttribute('fill', '#3b82f6'); // blue
+                            notehead.setAttribute('fill', '#3b82f6');
                             notehead.setAttribute('stroke', '#3b82f6');
                         }
                     } else if (index < currentNoteIndex) {
-                        // Already played
-                        notehead.setAttribute('fill', '#9ca3af'); // gray
+                        notehead.setAttribute('fill', '#9ca3af');
                         notehead.setAttribute('stroke', '#9ca3af');
                         notehead.setAttribute('opacity', '0.5');
                     } else {
-                        // Upcoming
                         notehead.setAttribute('fill', '#000000');
                         notehead.setAttribute('stroke', '#000000');
                     }
                 });
             }
 
-            console.log('✅ Staff rendered successfully');
+            // Auto-scroll to current note on mobile
+            if (isMobile && currentNoteIndex > 2) {
+                const scrollPosition = (currentNoteIndex - 2) * noteWidth;
+                renderDiv.scrollTo({ left: scrollPosition, behavior: 'smooth' });
+            }
 
         } catch (error) {
             console.error('❌ VexFlow rendering error:', error);
-            // Display error to user
             if (containerRef.current) {
                 containerRef.current.innerHTML = `
-                    <div style="color: red; padding: 20px;">
+                    <div style="color: red; padding: 20px; font-size: 14px;">
                         <strong>Errore rendering:</strong> ${error}
                     </div>
                 `;
             }
         }
 
-    }, [notes, currentNoteIndex, keySignature, feedbackStatus]);
+    }, [notes, currentNoteIndex, keySignature, feedbackStatus, containerWidth]);
 
     return (
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-                🎵 Pentagramma - Sight Reading
+        <div className="bg-white rounded-xl shadow-lg p-3 sm:p-6 lg:p-8 mb-4 sm:mb-6 w-full max-w-full overflow-hidden">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 text-center">
+                🎵 Pentagramma
             </h2>
 
             {notes.length > 0 ? (
                 <>
                     <div
                         ref={containerRef}
-                        className="flex justify-start items-center min-h-[250px] overflow-x-auto overflow-y-hidden border-2 border-gray-200 rounded-lg"
+                        className="flex justify-start items-center min-h-[250px] overflow-x-auto overflow-y-hidden border-2 border-gray-200 rounded-lg w-full"
                         style={{ maxWidth: '100%' }}
                     />
 
-                    <div className="text-center mt-4 text-gray-600">
-                        <p className="text-sm">
-                            <span className="inline-block w-4 h-4 bg-blue-600 rounded-full mr-2"></span>
-                            Nota corrente da suonare (prima nota)
+                    <div className="text-center mt-3 sm:mt-4 text-gray-600 space-y-1">
+                        <p className="text-xs sm:text-sm">
+                            <span className="inline-block w-3 h-3 sm:w-4 sm:h-4 bg-blue-600 rounded-full mr-2"></span>
+                            Nota corrente
                         </p>
-                        <p className="text-sm mt-1">
-                            <span className="inline-block w-4 h-4 bg-gray-400 rounded-full mr-2"></span>
-                            Note già suonate
+                        <p className="text-xs sm:text-sm">
+                            <span className="inline-block w-3 h-3 sm:w-4 sm:h-4 bg-gray-400 rounded-full mr-2"></span>
+                            Già suonate
                         </p>
                     </div>
                 </>
             ) : (
-                <div className="text-center text-gray-500 py-20">
-                    <p className="text-xl">Premi <strong>START</strong> per iniziare l'esercizio</p>
+                <div className="text-center text-gray-500 py-12 sm:py-20">
+                    <p className="text-base sm:text-xl">Premi <strong>START</strong> per iniziare</p>
                 </div>
             )}
         </div>
